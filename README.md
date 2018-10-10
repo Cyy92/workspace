@@ -311,8 +311,11 @@ import gateway_pb2_grpc
 
 def run():
     with grpc.insecure_channel('localhost:32222') as channel:
-	    stub = gateway_pb2_grpc.GatewayStub(channel)
-	    r = stub.Invoke(servicerequest)
+	    # Creating a stub
+		stub = gateway_pb2_grpc.GatewayStub(channel)
+	    
+		# Calling service methods
+		r = stub.Invoke(servicerequest)
 	    servicerequest = gateway_pb2.Invoke(Service=”echo”, Input=”hello world”.encode())
 	    print(r.Msg)
 
