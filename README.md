@@ -118,7 +118,7 @@ $ export PATH=$PATH:$GOPATH/bin
 
 ### 1. Define gRPC service 
 
-  - __파일의 확장자는 [.proto]이고 Service의 이름은 proto 파일의 이름과 같다.__ 
+  - 파일의 확장자는 [.proto]이고 Service의 이름은 proto 파일의 이름과 같다. 
 
 ```
 syntax = "proto3"; 
@@ -159,16 +159,16 @@ message FunctionResources {
 ```
 $ mkdir –p {GOPATH}/src/pb 
 $ protoc -I . \ 
--I${GOPATH}/src/pb \ 
---go_out=plugins=grpc:. \ 
-${GOPATH}/src/pb/gateway.proto 
+  -I${GOPATH}/src/pb \ 
+  --go_out=plugins=grpc:. \ 
+  ${GOPATH}/src/pb/gateway.proto 
 ```
 
-- __컴파일을 완료하면 컴파일할 때의 설정값인 ${GOPATH}/src/pb 경로에 gateway.pb.go 파일이 생성된다.__ 
+- 컴파일을 완료하면 컴파일할 때의 설정값인 ${GOPATH}/src/pb 경로에 gateway.pb.go 파일이 생성된다. 
 
 ### 3. Create gRPC client 
 
-#### For Beginning
+> ### For Beginning
 
 - 구현된 서비스 메소드를 호출하기 위해, 서버와 통신할 수 있는 gRPC 채널을 만든다
 
@@ -189,9 +189,8 @@ import (
 )
 
 func main() {
-	
 	// Creating a gRPC Channel
-    address := "localhost:32222" 
+	address := "localhost:32222" 
   
     conn, err := grpc.Dial(address, grpc.WithInsecure()) 
     if err != nil { 
@@ -205,7 +204,6 @@ func main() {
 
 	// Calling service method
     r, err := client.Invoke(ctx, &pb.InvokeServiceRequest{Service: "echo", Input: []byte("hello world")}) 
-
     if err != nil { 
 	    log.Fatalf("could not invoke: %v\n", err) 
     } 
@@ -217,17 +215,16 @@ func main() {
 ## gRPC for Python 
 
 ### PREREQUISITES 
------------------ 
 
-- Install pip (version 9.0.1 ~) 
+- ### Install pip (version 9.0.1 ~) 
 
-  gRPC Python은 Python 2.7 또는 Python 3.4 이상부터 지원 가능하다. 
+  __gRPC Python은 Python 2.7 또는 Python 3.4 이상부터 지원 가능하다. __
   
   ```
   $ python -m pip install --upgrade pip 
   ```
 
-  만약 root 계정이 아닌 경우, 다음과 같이 pip을 업그레이드 할 수 있다. 
+  __만약 root 계정이 아닌 경우, 다음과 같이 pip을 업그레이드 할 수 있다.__
 
   ```
   $ python -m pip install virtualenv 
@@ -237,7 +234,7 @@ func main() {
   ```
 
 ### Install gRPC 
----------------- 
+ 
 
 ```
 $ python -m pip install grpcio 
@@ -245,8 +242,7 @@ $ python -m pip install grpcio
 
 * OS X EL Capitan의 운영체제일 경우, 다음과 같은 오류가 발생한다. 
 
-OSError: [Errno 1] Operation not permitted: 
-'/tmp/pip-qwTLbI-uninstall/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/six-1.4.1-py2.7.egg-info' 
+  $ OSError: [Errno 1] Operation not permitted: '/tmp/pip-qwTLbI-uninstall/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/six-1.4.1-py2.7.egg-info' 
   
 * 이 오류는 다음과 같이 해결할 수 있다. 
   
@@ -255,7 +251,6 @@ $ python -m pip install grpcio --ignore-installed
 ```
   
 ### Install gRPC tools 
----------------------- 
 
 * Python gRPC tool은 프로토콜 버퍼 컴파일러인 protoc와 proto 파일로부터 서버 / 클라이언트 코드를 생성하는 특별한 플러그인이 포함되어있다. 때문에 Golang gRPC에서처럼 따로 프로토콜 버퍼를 설치할 필요가 없다. 
   
@@ -264,45 +259,65 @@ $ python -m pip install grpcio-tools googleapis-common-protos
 ```
 
 ### Communicate with gateway 
----------------------------- 
 
-1. Define gRPC service 
+### 1. Define gRPC service 
 
 * service를 정의한 proto 파일은 앞서 `gRPC for Go`에서 정의한 파일과 동일하다. 
 
-2. Generate gRPC service 
+### 2. Generate gRPC service 
 
 ```
 $ mkdir –p {GOPATH}/src/pb 
-$ python -m grpc_tools.protoc –I${GOPATH}/src/pb \ 
-   --python_out=. --grpc_python_out=. ${GOPATH}/src/pb/gateway.proto 
+$ python -m grpc_tools.protoc -I${GOPATH}/src/pb --python_out=. --grpc_python_out=. ${GOPATH}/src/pb/gateway.proto 
 ```
 
-3. Create gRPC client 
+* 다음의 오류가 발생할 수 있다.
 
-- Client 생성 관련 예제 코드는 [grpc-python/client](https://github.com/grpc/grpc/tree/master/examples/python/route_guide)에서 확인할 수 있다. 
+```
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/runpy.py", line 174, in _run_module_as_main
+    "__main__", fname, loader, pkg_name)
+  File "/usr/lib/python2.7/runpy.py", line 72, in _run_code
+      exec code in run_globals
+  File "/usr/local/lib/python2.7/dist-packages/grpc_tools/protoc.py", line 36, in <module>
+    sys.exit(main(sys.argv + ['-I{}'.format(proto_include)]))
+  File "/usr/local/lib/python2.7/dist-packages/grpc_tools/protoc.py", line 30, in main
+    command_arguments = [argument.encode() for argument in command_arguments]
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xe2 in position 0: ordinal not in range(128)	
+```
 
-- Creating a stub 
+* 이 오류는 다음과 같이 해결할 수 있다. 
 
-  * 서비스 메소드를 호출하기 위해 Stub을 먼저 생성해야한다. 
+```
+$ vi /usr/local/lib/python2.7/dist-packages/grpc_tools/protoc.py
 
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+```
 
-  ```python
-  channel = grpc.insecure_channel1(`*serverAddr`) 
+### 3. Create gRPC client 
 
-  stub = gateway_pb2_grpc.GatewayStub(channel) 
-  ```
+> ### For Beginning
 
-- Calling service methods 
+- 서비스 메소드를 호출하기 위한 Stub을 만든다
 
-  * Stub까지 생성이 완료되면 클라이언트 측에서 서비스 메소드를 호출한다. 
+- 서비스 메소드를 호출한다.  
 
+```python
+import grpc
 
-  ```python
-  r = stub.Invoke(servicerequest) 
+import gateway_pb2
+import gateway_pb2_grpc
 
-  servicerequest = gateway_pb2.Invoke(Service=”echo”, Input=”hello world”.encode()) 
+def run():
+    with grpc.insecure_channel('localhost:32222') as channel:
+	    stub = gateway_pb2_grpc.GatewayStub(channel)
+		r = stub.Invoke(servicerequest)
+		servicerequest = gateway_pb2.Invoke(Service=”echo”, Input=”hello world”.encode())
+		print(r.Msg)
 
-  print(r.Msg) 
-  ```
+if __name__ == '__main__':
+	run()
+```
 
