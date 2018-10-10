@@ -12,42 +12,42 @@ CLI를 통해  지원되는 Runtime으로 function을 빌드하고 배포할 수
 
 - Function 생성 
 
-  1. 지원되는 Runtime의 목록을 보여준다. 
+  1. 지원되는 Runtime의 목록을 보여준다.
   
-  ```
-  $ dcf runtime list 
-  ``` 
+    ```
+    $ dcf runtime list
+    ```
 
-  * Runtime : CLI에서 지원해주는 프로그래밍 언어 
+    Runtime : CLI에서 지원해주는 프로그래밍 언어
 
-  2. echo-service라는 function을 생성한다. function을 생성할 때 원하는 runtime을 flag를 통해 지정할 수 있다. 생성이 완료되면 현재 디렉토리에 config.yaml 파일과 echo-service라는 폴더가 만들어지고, 폴더 안에는 handler.go 파일과 Dockerfile이 생성된다. 
+  2. echo-service라는 function을 생성한다. function을 생성할 때 원하는 runtime을 flag를 통해 지정할 수 있다. 생성이 완료되면 현재 디렉토리에 config.yaml 파일과 echo-service라는 폴더가 만들어지고, 폴더 안에는 handler.go 파일과 Dockerfile이 생성된다.
 
-  ```
-  $ dcf function init echo-service -r go 
-  ```
+    ```
+    $ dcf function init echo-service -r go
+    ```
 
-  * Config.yaml : 사용자가 function을 정의하고자 할 때 규격이 되는 파일, 여러 개의 function을 정의할 수 있다. 
+    Config.yaml : 사용자가 function을 정의하고자 할 때 규격이 되는 파일, 여러 개의 function을 정의할 수 있다.
 
-  ```
-  funtions: 
-    echo-service: // function 이름 
-	  runtime: function runtime 정의 
-	  desc: "" 
-	  maintainer: "" 
-	  handler: // function이 실행되는 main 함수 
-	    dir: ./echo-service // handler.go 파일이 저장된 경로 
-		file: "" 
-		name: Handler // main 함수 이름 
-	  image: dcf-repository:5000/echo-service 
-  dcf: 
-    gateway: localhost:32222 
-  ```
+    ```
+    funtions:
+      echo-service: // function 이름
+	    runtime: function runtime 정의
+	    desc: ""
+	    maintainer: ""
+	    handler: // function이 실행되는 main 함수
+	      dir: ./echo-service // handler.go 파일이 저장된 경로
+		  file: ""
+		  name: Handler // main 함수 이름
+		  image: dcf-repository:5000/echo-service
+    dcf:
+      gateway: localhost:32222
+    ```
 
-  3. Dockerfile을 통해 Image를 생성하고 repository에 push 및 deploy 
+  3. Dockerfile을 통해 Image를 생성하고 repository에 push 및 deploy
   
-  ```
-  $ dcf function create -f config.yaml --replace=false --update=true 
-  ``` 
+    ```
+    $ dcf function create -f config.yaml --replace=false --update=true
+    ``` 
 
 - Function 호출 
 
@@ -131,7 +131,8 @@ $ export PATH=$PATH:$GOPATH/bin
 ---------------------------- 
 
 1. Define gRPC service 
-- 파일의 확장자는 [.proto]이고 Service의 이름은 proto 파일의 이름과 같다. 
+
+  - 파일의 확장자는 [.proto]이고 Service의 이름은 proto 파일의 이름과 같다. 
 
 ```
 syntax = "proto3"; 
@@ -149,13 +150,13 @@ message Message {
 } 
   
 message CreateFunctionRequest { 
-	string Service = 1; 
+  	string Service = 1; 
 	string Image = 2; 
 	map<string, string> EnvVars = 3; 
 	map<string, string> Labels = 4; 
 	repeated string Secrets= 5; 
 	FunctionResources Limits = 6; 
-	// There are more variables that user can define 
+    // There are more variables that user can define 
 } 
 
 message FunctionResources { 
@@ -179,31 +180,33 @@ $ protoc -I . \
 
 - 컴파일을 완료하면 컴파일할 때의 설정값인 ${GOPATH}/src/pb 경로에 gateway.pb.go 파일이 생성된다. 
 
-### Create gRPC client 
----------------------- 
+3. Create gRPC client 
+
+Client 생성 관련 예제 코드는 [grpc-go/client](https://github.com/grpc/grpc-go/tree/master/examples/route_guide/client)에서 확인할 수 있다.
 
 - Creating a stub 
-
-  * 구현된 서비스 메소드를 호출하기 위해, 서버와 통신할 수 있는 gRPC 채널을 만들어야 한다. 이는 서버 주소와 포트 번호, 필요에 따라 인증 자격 요청을 설정하기 위한 옵션을 인자로 갖는 grpc.Dial() 메소드를 통해 만들 수 있다. 
   
+  * 구현된 서비스 메소드를 호출하기 위해, 서버와 통신할 수 있는 gRPC 채널을 만들어야 한다. 이는 서버 주소와 포트 번호, 필요에 따라 인증 자격 요청을 설정하기 위한 옵션을 인자로 갖는 grpc.Dial() 메소드를 통해 만들 수 있다.
+    
   ```go
   address := "localhost:32222" 
   
   conn, err := grpc.Dial(address, grpc.WithInsecure()) 
   if err != nil { 
 	log.Fatalf("did not connect: %v", err) 
-  } 
+  }
+
   defer conn.Close() 
   ```
 
-  * gRPC 채널이 구축되면 RPC를 수행할 클라이언트 Stub이 필요하다. 이는 gateway.pb.go 파일에 생성된 NewGatewayClient 메소드를 통해 만들 수 있다. 
+  * gRPC 채널이 구축되면 RPC를 수행할 클라이언트 Stub이 필요하다. 이는 gateway.pb.go 파일에 생성된 NewGatewayClient 메소드를 통해 만들 수 있다.
 
   ```go
   client := pb.NewGatewayClient(conn) 
   ```
 
 - Calling service methods 
-
+  
   * Stub까지 생성이 완료되면, 클라이언트 측에서 서비스 메소드를 호출한다. 
 
   ```go
@@ -224,12 +227,14 @@ $ protoc -I . \
 - Install pip (version 9.0.1 ~) 
 
   * gRPC Python은 Python 2.7 또는 Python 3.4 이상부터 지원 가능하다. 
+
   
   ```
   $ python -m pip install --upgrade pip 
   ```
 
-  * 만약 root 계정이 아닌 경우, 다음과 같이 pip를 업그레이드 할 수 있다. 
+  * 만약 root 계정이 아닌 경우, 다음과 같이 pip을 업그레이드 할 수 있다. 
+
 
   ```
   $ python -m pip install virtualenv 
@@ -280,12 +285,14 @@ $ python -m grpc_tools.protoc –I${GOPATH}/src/pb \
    --python_out=. --grpc_python_out=. ${GOPATH}/src/pb/gateway.proto 
 ```
 
-### Create gRPC client 
----------------------- 
+3. Create gRPC client 
+
+- Client 생성 관련 예제 코드는 [grpc-python/client](https://github.com/grpc/grpc/tree/master/examples/python/route_guide)에서 확인할 수 있다. 
 
 - Creating a stub 
 
   * 서비스 메소드를 호출하기 위해 Stub을 먼저 생성해야한다. 
+
 
   ```python
   channel = grpc.insecure_channel1(`*serverAddr`) 
@@ -296,6 +303,7 @@ $ python -m grpc_tools.protoc –I${GOPATH}/src/pb \
 - Calling service methods 
 
   * Stub까지 생성이 완료되면 클라이언트 측에서 서비스 메소드를 호출한다. 
+
 
   ```python
   r = stub.Invoke(servicerequest) 
