@@ -8,9 +8,9 @@ CLI를 통해  지원되는 Runtime으로 function을 빌드하고 배포할 수
 
 ## Run the CLI 
 
-> CLI 실행 순서 
+> ### CLI 실행 순서 
 
-- Function 생성 
+> - ### Function 생성 
 
 1. 지원되는 Runtime의 목록을 보여준다. Runtime이란 CLI에서 지원해주는 프로그래밍 언어이다.
   
@@ -46,13 +46,13 @@ CLI를 통해  지원되는 Runtime으로 function을 빌드하고 배포할 수
     $ dcf function create -f config.yaml --replace=false --update=true
     ``` 
 
-- Function 호출 
+> - ### Function 호출 
 
   ```
   $ dcf function call echo-service -g localhost:32222 
   ```  
 
-- Function 확인 
+> - ### Function 확인 
 
   생성된 function의 목록을 보여준다. 
   
@@ -66,7 +66,7 @@ CLI를 통해  지원되는 Runtime으로 function을 빌드하고 배포할 수
   $ dcf function info echo-service -f config.yaml -g localhost:32222 
   ```
 
-- Function 삭제 
+> - ### Function 삭제 
 
   생성된 function을 삭제한다. 
 
