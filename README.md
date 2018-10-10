@@ -28,14 +28,14 @@ CLI를 통해  지원되는 Runtime으로 function을 빌드하고 배포할 수
     ```
       funtions:
         echo-service: // function 이름
-	      runtime: function runtime 정의
+	      runtime: //function runtime 정의
 	      desc: ""
 	      maintainer: ""
 	      handler: // function이 실행되는 main 함수
-	        dir: ./echo-service // handler.go 파일이 저장된 경로
-		    file: ""
-		    name: Handler // main 함수 이름
-		    image: dcf-repository:5000/echo-service
+		    dir: ./echo-service // handler.go 파일이 저장된 경로
+			file: ""
+			name: Handler // main 함수 이름
+			image: dcf-repository:5000/echo-service
       dcf:
         gateway: localhost:32222
     ```
