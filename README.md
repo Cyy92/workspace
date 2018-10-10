@@ -189,8 +189,8 @@ import (
 )
 
 func main() {
-	// Creating a gRPC Channel
-	address := "localhost:32222" 
+    // Creating a gRPC Channel
+    address := "localhost:32222" 
   
     conn, err := grpc.Dial(address, grpc.WithInsecure()) 
     if err != nil { 
@@ -199,10 +199,10 @@ func main() {
 
     defer conn.Close()
 
-	// Creating a stub
+    // Creating a stub
     client := pb.NewGatewayClient(conn)
 
-	// Calling service method
+    // Calling service method
     r, err := client.Invoke(ctx, &pb.InvokeServiceRequest{Service: "echo", Input: []byte("hello world")}) 
     if err != nil { 
 	    log.Fatalf("could not invoke: %v\n", err) 
