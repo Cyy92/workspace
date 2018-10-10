@@ -12,21 +12,19 @@ CLI를 통해  지원되는 Runtime으로 function을 빌드하고 배포할 수
 
 - Function 생성 
 
-  1. 지원되는 Runtime의 목록을 보여준다.
+  1. 지원되는 __Runtime__의 목록을 보여준다. __Runtime__ 이란 CLI에서 지원해주는 프로그래밍 언어이다.
   
     ```
     $ dcf runtime list
     ```
 
-    Runtime : CLI에서 지원해주는 프로그래밍 언어
-
-  2. echo-service라는 function을 생성한다. function을 생성할 때 원하는 runtime을 flag를 통해 지정할 수 있다. 생성이 완료되면 현재 디렉토리에 config.yaml 파일과 echo-service라는 폴더가 만들어지고, 폴더 안에는 handler.go 파일과 Dockerfile이 생성된다.
+  2. echo-service라는 function을 생성한다. function을 생성할 때 원하는 runtime을 flag를 통해 지정할 수 있다. 
+  생성이 완료되면 현재 디렉토리에 __config.yaml__ 파일과 echo-service라는 폴더가 만들어지고, 폴더 안에는 handler.go 파일과 Dockerfile이 생성된다.
 
     ```
     $ dcf function init echo-service -r go
     ```
-
-    Config.yaml : 사용자가 function을 정의하고자 할 때 규격이 되는 파일, 여러 개의 function을 정의할 수 있다.
+__config.yaml__ : 사용자가 function을 정의하고자 할 때 규격이 되는 파일, 여러 개의 function을 정의할 수 있다.
 
     ```
     funtions:
@@ -57,13 +55,13 @@ CLI를 통해  지원되는 Runtime으로 function을 빌드하고 배포할 수
 
 - Function 확인 
 
-  * 생성된 function의 목록을 보여준다. 
+  생성된 function의 목록을 보여준다. 
   
   ```
   $ dcf function list 
   ``` 
 
-  * 생성된 function에 대한 정보를 확인한다. 
+  생성된 function에 대한 정보를 확인한다. 
 
   ```
   $ dcf function info echo-service -f config.yaml -g localhost:32222 
@@ -71,7 +69,7 @@ CLI를 통해  지원되는 Runtime으로 function을 빌드하고 배포할 수
 
 - Function 삭제 
 
-  * 생성된 function을 삭제한다. 
+  생성된 function을 삭제한다. 
 
   ```
   $ dcf function delete -f config.yaml 
@@ -182,11 +180,11 @@ $ protoc -I . \
 
 3. Create gRPC client 
 
-Client 생성 관련 예제 코드는 [grpc-go/client](https://github.com/grpc/grpc-go/tree/master/examples/route_guide/client)에서 확인할 수 있다.
+- Client 생성 관련 예제 코드는 [grpc-go/client](https://github.com/grpc/grpc-go/tree/master/examples/route_guide/client)에서 확인할 수 있다.
 
 - Creating a stub 
   
-  * 구현된 서비스 메소드를 호출하기 위해, 서버와 통신할 수 있는 gRPC 채널을 만들어야 한다. 이는 서버 주소와 포트 번호, 필요에 따라 인증 자격 요청을 설정하기 위한 옵션을 인자로 갖는 grpc.Dial() 메소드를 통해 만들 수 있다.
+  구현된 서비스 메소드를 호출하기 위해, 서버와 통신할 수 있는 gRPC 채널을 만들어야 한다. 이는 서버 주소와 포트 번호, 필요에 따라 인증 자격 요청을 설정하기 위한 옵션을 인자로 갖는 grpc.Dial() 메소드를 통해 만들 수 있다.
     
   ```go
   address := "localhost:32222" 
@@ -199,7 +197,7 @@ Client 생성 관련 예제 코드는 [grpc-go/client](https://github.com/grpc/g
   defer conn.Close() 
   ```
 
-  * gRPC 채널이 구축되면 RPC를 수행할 클라이언트 Stub이 필요하다. 이는 gateway.pb.go 파일에 생성된 NewGatewayClient 메소드를 통해 만들 수 있다.
+  gRPC 채널이 구축되면 RPC를 수행할 클라이언트 Stub이 필요하다. 이는 gateway.pb.go 파일에 생성된 NewGatewayClient 메소드를 통해 만들 수 있다.
 
   ```go
   client := pb.NewGatewayClient(conn) 
@@ -207,7 +205,7 @@ Client 생성 관련 예제 코드는 [grpc-go/client](https://github.com/grpc/g
 
 - Calling service methods 
   
-  * Stub까지 생성이 완료되면, 클라이언트 측에서 서비스 메소드를 호출한다. 
+  Stub까지 생성이 완료되면, 클라이언트 측에서 서비스 메소드를 호출한다. 
 
   ```go
   r, err := client.Invoke(ctx, &pb.InvokeServiceRequest{Service: "echo", Input: []byte("hello world")}) 
@@ -226,15 +224,13 @@ Client 생성 관련 예제 코드는 [grpc-go/client](https://github.com/grpc/g
 
 - Install pip (version 9.0.1 ~) 
 
-  * gRPC Python은 Python 2.7 또는 Python 3.4 이상부터 지원 가능하다. 
-
+  gRPC Python은 Python 2.7 또는 Python 3.4 이상부터 지원 가능하다. 
   
   ```
   $ python -m pip install --upgrade pip 
   ```
 
-  * 만약 root 계정이 아닌 경우, 다음과 같이 pip을 업그레이드 할 수 있다. 
-
+  만약 root 계정이 아닌 경우, 다음과 같이 pip을 업그레이드 할 수 있다. 
 
   ```
   $ python -m pip install virtualenv 
