@@ -12,13 +12,13 @@ CLI를 통해  지원되는 Runtime으로 function을 빌드하고 배포할 수
 
 > - ### Function 생성 
 
-1. 지원되는 Runtime의 목록을 보여준다. Runtime이란 CLI에서 지원해주는 프로그래밍 언어이다.
+1. __지원되는 Runtime의 목록을 보여준다. Runtime이란 CLI에서 지원해주는 프로그래밍 언어이다.__
   
     ```
     $ dcf runtime list
     ```
 
-2. echo-service라는 function을 생성한다. function을 생성할 때 원하는 runtime을 flag를 통해 지정할 수 있다. 생성이 완료되면 현재 디렉토리에 config.yaml 파일과 echo-service라는 폴더가 만들어지고, 폴더 안에는 handler.go 파일과 Dockerfile이 생성된다.
+2. __echo-service라는 function을 생성한다. function을 생성할 때 원하는 runtime을 flag를 통해 지정할 수 있다. 생성이 완료되면 현재 디렉토리에 config.yaml 파일과 echo-service라는 폴더가 만들어지고, 폴더 안에는 handler.go 파일과 Dockerfile이 생성된다.__
 
     ```
     $ dcf function init echo-service -r go
@@ -40,7 +40,7 @@ CLI를 통해  지원되는 Runtime으로 function을 빌드하고 배포할 수
         gateway: localhost:32222
     ```
 
-3. Dockerfile을 통해 Image를 생성하고 repository에 push 및 deploy
+3. __Dockerfile을 통해 Image를 생성하고 repository에 push 및 deploy__
   
     ```
     $ dcf function create -f config.yaml --replace=false --update=true
@@ -53,22 +53,16 @@ CLI를 통해  지원되는 Runtime으로 function을 빌드하고 배포할 수
   ```  
 
 > - ### Function 확인 
-
-  생성된 function의 목록을 보여준다. 
   
   ```
   $ dcf function list 
   ``` 
-
-  생성된 function에 대한 정보를 확인한다. 
 
   ```
   $ dcf function info echo-service -f config.yaml -g localhost:32222 
   ```
 
 > - ### Function 삭제 
-
-  생성된 function을 삭제한다. 
 
   ```
   $ dcf function delete -f config.yaml 
@@ -90,13 +84,11 @@ $ dcf runtime list -h
 ## gRPC for Go 
 
 ### PREREQUISITES 
------------------ 
 
 - Go 1.6 이상의 버전이 필요하다. 
 - [GOPATH](https://golang.org/doc/code.html#GOPATH)가 설정되어야 한다. 
 
 ### Install gRPC 
----------------- 
 
 ```
 $ go get –u google.golang.org/grpc 
@@ -104,7 +96,6 @@ $ go get -u golang.org/x/net
 ```
 
 ### Install Protocol Buffers 
----------------------------- 
 
 - [here](https://github.com/google/protobuf/releases)에서 버전과 플랫폼에 맞는 압축 파일의 링크를 복사하여 파일을 다운 받는다. 
 
@@ -117,7 +108,6 @@ $ sudo mv protoc3/include/* /usr/local/include/
 ```
 
 ### Install Protoc plugin 
-------------------------- 
 
 ```
 $ go get -u github.com/golang/protobuf/{proto,protoc-gen-go} 
@@ -125,11 +115,10 @@ $ export PATH=$PATH:$GOPATH/bin
 ```
 
 ### Communicate with gateway 
----------------------------- 
 
-1. Define gRPC service 
+### 1. Define gRPC service 
 
-  - 파일의 확장자는 [.proto]이고 Service의 이름은 proto 파일의 이름과 같다. 
+  - __파일의 확장자는 [.proto]이고 Service의 이름은 proto 파일의 이름과 같다.__ 
 
 ```
 syntax = "proto3"; 
@@ -165,56 +154,65 @@ message FunctionResources {
 // There are more message that user can define 
 ```
 
-2. Generate gRPC service 
+### 2. Generate gRPC service 
 
 ```
 $ mkdir –p {GOPATH}/src/pb 
 $ protoc -I . \ 
-                -I${GOPATH}/src/pb \ 
-				        --go_out=plugins=grpc:. \ 
-						        ${GOPATH}/src/pb/gateway.proto 
+-I${GOPATH}/src/pb \ 
+--go_out=plugins=grpc:. \ 
+${GOPATH}/src/pb/gateway.proto 
 ```
 
-- 컴파일을 완료하면 컴파일할 때의 설정값인 ${GOPATH}/src/pb 경로에 gateway.pb.go 파일이 생성된다. 
+- __컴파일을 완료하면 컴파일할 때의 설정값인 ${GOPATH}/src/pb 경로에 gateway.pb.go 파일이 생성된다.__ 
 
-3. Create gRPC client 
+### 3. Create gRPC client 
 
-- Client 생성 관련 예제 코드는 [grpc-go/client](https://github.com/grpc/grpc-go/tree/master/examples/route_guide/client)에서 확인할 수 있다.
+#### For Beginning
 
-- Creating a stub 
+- 구현된 서비스 메소드를 호출하기 위해, 서버와 통신할 수 있는 gRPC 채널을 만든다
+
+- 채널이 구축되면 RPC를 수행할 클라이언트 Stub을 만든다
+
+- 서비스 메소드를 호출한다
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/digitalcompanion-keti/dcf/pb"
+	"google.golang.org/grpc"
+)
+
+func main() {
+	
+	// Creating a gRPC Channel
+    address := "localhost:32222" 
   
-  구현된 서비스 메소드를 호출하기 위해, 서버와 통신할 수 있는 gRPC 채널을 만들어야 한다. 이는 서버 주소와 포트 번호, 필요에 따라 인증 자격 요청을 설정하기 위한 옵션을 인자로 갖는 grpc.Dial() 메소드를 통해 만들 수 있다.
-    
-  ```go
-  address := "localhost:32222" 
-  
-  conn, err := grpc.Dial(address, grpc.WithInsecure()) 
-  if err != nil { 
-	log.Fatalf("did not connect: %v", err) 
-  }
+    conn, err := grpc.Dial(address, grpc.WithInsecure()) 
+    if err != nil { 
+	  log.Fatalf("did not connect: %v", err) 
+    }
 
-  defer conn.Close() 
-  ```
+    defer conn.Close()
 
-  gRPC 채널이 구축되면 RPC를 수행할 클라이언트 Stub이 필요하다. 이는 gateway.pb.go 파일에 생성된 NewGatewayClient 메소드를 통해 만들 수 있다.
+	// Creating a stub
+    client := pb.NewGatewayClient(conn)
 
-  ```go
-  client := pb.NewGatewayClient(conn) 
-  ```
+	// Calling service method
+    r, err := client.Invoke(ctx, &pb.InvokeServiceRequest{Service: "echo", Input: []byte("hello world")}) 
 
-- Calling service methods 
-  
-  Stub까지 생성이 완료되면, 클라이언트 측에서 서비스 메소드를 호출한다. 
+    if err != nil { 
+	    log.Fatalf("could not invoke: %v\n", err) 
+    } 
 
-  ```go
-  r, err := client.Invoke(ctx, &pb.InvokeServiceRequest{Service: "echo", Input: []byte("hello world")}) 
-
-  if err != nil { 
-	  log.Fatalf("could not invoke: %v\n", err) 
-  } 
-
-  fmt.Println(r.Msg) 
-  ```
+    fmt.Println(r.Msg)   
+}
+```
 
 ## gRPC for Python 
 
