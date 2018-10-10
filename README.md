@@ -33,9 +33,9 @@ CLI를 통해  지원되는 Runtime으로 function을 빌드하고 배포할 수
 	      maintainer: ""
 	      handler: // function이 실행되는 main 함수
 		    dir: ./echo-service // handler.go 파일이 저장된 경로
-			file: ""
-			name: Handler // main 함수 이름
-			image: dcf-repository:5000/echo-service
+		file: ""
+		name: Handler // main 함수 이름
+		image: dcf-repository:5000/echo-service
       dcf:
         gateway: localhost:32222
     ```
@@ -218,13 +218,13 @@ func main() {
 
 - ### Install pip (version 9.0.1 ~) 
 
-  __gRPC Python은 Python 2.7 또는 Python 3.4 이상부터 지원 가능하다. __
+  gRPC Python은 Python 2.7 또는 Python 3.4 이상부터 지원 가능하다. 
   
   ```
   $ python -m pip install --upgrade pip 
   ```
 
-  __만약 root 계정이 아닌 경우, 다음과 같이 pip을 업그레이드 할 수 있다.__
+  만약 root 계정이 아닌 경우, 다음과 같이 pip을 업그레이드 할 수 있다.
 
   ```
   $ python -m pip install virtualenv 
@@ -235,7 +235,6 @@ func main() {
 
 ### Install gRPC 
  
-
 ```
 $ python -m pip install grpcio 
 ```
@@ -313,9 +312,9 @@ import gateway_pb2_grpc
 def run():
     with grpc.insecure_channel('localhost:32222') as channel:
 	    stub = gateway_pb2_grpc.GatewayStub(channel)
-		r = stub.Invoke(servicerequest)
-		servicerequest = gateway_pb2.Invoke(Service=”echo”, Input=”hello world”.encode())
-		print(r.Msg)
+	r = stub.Invoke(servicerequest)
+	servicerequest = gateway_pb2.Invoke(Service=”echo”, Input=”hello world”.encode())
+	print(r.Msg)
 
 if __name__ == '__main__':
 	run()
