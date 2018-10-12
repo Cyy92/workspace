@@ -323,3 +323,62 @@ if __name__ == '__main__':
 	run()
 ```
 
+## gRPC for C++
+
+### PREREQUISITES
+
+```
+# apt-get install build-essential autoconf libtool pkg-config
+# apt-get install libgflags-dev libgtest-dev
+# apt-get install clang libc++-dev
+```
+
+### Install gRPC
+
+```
+# git clone -b v1.15.0 https://github.com/grpc/grpc
+```
+
+### Install Protocal Buffers
+
+- 만약 'protoc' 컴파일러가 설치되어있지 않다면 다음과 같이 설치해준다. 'protoc'는 기본적으로 /usr/local/bin에 설치된다.
+
+```
+# cd grpc/third_party
+# git clone https://github.com/google/protobuf.git
+# cd protobuf
+# git submodule update --init –recursive
+# ./autogen.sh
+# ./configure
+# make
+# make check
+# make install
+# ldconfig
+```
+
+### Install Protoc plugin
+
+- grpc repository의 root에서 설치한다. 
+
+```
+# cd ../../
+# git submodule update --init
+# make
+# make install
+```
+
+- make 명령어 실행 중 다음과 같은 오류가 발생할 수 있다.
+
+```
+error: ‘dynamic_init_dummy_src_2fproto_2fgrpc_2fstatus_2fstatus_2eproto’ defined but not used [-Werror=unused-variable]
+
+static bool dynamic_init_dummy_src_2fproto_2fgrpc_2fstatus_2fstatus_2eproto = []() { AddDescriptors_src_2fproto_2fgrpc_2fstatus_2fstatus_2eproto(); return true; }();
+```
+
+- Solution:
+
+```
+static bool dynamic_init_dummy_src_2fproto_2fgrpc_2fstatus_2fstatus_2eproto `__attribute__((unused))` = []() { AddDescriptors_src_2fproto_2fgrpc_2fstatus_2fstatus_2eproto(); return true; }();
+```
+
+
