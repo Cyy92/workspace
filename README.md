@@ -9,7 +9,6 @@ CLI를 통해  지원되는 Runtime으로 function을 빌드하고 배포할 수
 ```
 $ wget https://github.com/DigitalCompanion-KETI/DCFramework/releases/download/v0.1.0/dcf
 $ chmod +x dcf
-$ cp dcf /usr/bin
 ```
 
 ## Run the CLI 
@@ -18,7 +17,9 @@ $ cp dcf /usr/bin
 
 > - ### Function 생성 
 
-1. __지원되는 Runtime의 목록을 보여준다. Runtime이란 CLI에서 지원해주는 프로그래밍 언어이다.__
+1. __지원되는 Runtime의 목록을 보여준다.__ 
+
+- Runtime: DCF에서 지원해주는 프로그래밍 언어
   
     ```
     $ dcf runtime list
