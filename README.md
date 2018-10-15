@@ -6,6 +6,12 @@ CLI를 통해  지원되는 Runtime으로 function을 빌드하고 배포할 수
 
 ## Get started: Install the CLI 
 
+```
+$ wget https://github.com/DigitalCompanion-KETI/DCFramework/releases/download/v0.1.0/dcf
+$ chmod +x dcf
+$ cp dcf /usr/bin
+```
+
 ## Run the CLI 
 
 > ### CLI 실행 순서 
@@ -54,12 +60,16 @@ CLI를 통해  지원되는 Runtime으로 function을 빌드하고 배포할 수
 
 > - ### Function 확인 
   
+- 생성된 function이 Ready 상태인지 확인
+
   ```
   $ dcf function list 
   ``` 
 
+- 생성된 function의 정보
+
   ```
-  $ dcf function info echo-service -f config.yaml -g localhost:32222 
+  $ dcf function info echo-service -g localhost:32222 
   ```
 
 > - ### Function 삭제 
@@ -114,11 +124,16 @@ $ go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
 $ export PATH=$PATH:$GOPATH/bin 
 ```
 
-### Communicate with gateway 
+## gRPC 통신 
 
 ### 1. Define gRPC service 
 
   - 파일의 확장자는 [.proto]이고 Service의 이름은 proto 파일의 이름과 같다. 
+
+```
+$ mkdir -p ${GOPATH}/src/pb
+$ vim {GOPATH}/src/pb/gateway.proto
+```
 
 ```
 syntax = "proto3"; 
@@ -156,8 +171,7 @@ message FunctionResources {
 
 ### 2. Generate gRPC service 
 
-```
-$ mkdir –p {GOPATH}/src/pb 
+``` 
 $ protoc -I . \ 
   -I${GOPATH}/src/pb \ 
   --go_out=plugins=grpc:. \ 
@@ -257,7 +271,7 @@ $ python -m pip install grpcio --ignore-installed
 $ python -m pip install grpcio-tools googleapis-common-protos 
 ```
 
-### Communicate with gateway 
+## gRPC 통신 
 
 ### 1. Define gRPC service 
 
@@ -266,7 +280,6 @@ $ python -m pip install grpcio-tools googleapis-common-protos
 ### 2. Generate gRPC service 
 
 ```
-$ mkdir –p {GOPATH}/src/pb 
 $ python -m grpc_tools.protoc -I${GOPATH}/src/pb --python_out=. --grpc_python_out=. ${GOPATH}/src/pb/gateway.proto 
 ```
 
@@ -328,15 +341,15 @@ if __name__ == '__main__':
 ### PREREQUISITES
 
 ```
-# apt-get install build-essential autoconf libtool pkg-config
-# apt-get install libgflags-dev libgtest-dev
-# apt-get install clang libc++-dev
+$ apt-get install build-essential autoconf libtool pkg-config
+$ apt-get install libgflags-dev libgtest-dev
+$ apt-get install clang libc++-dev
 ```
 
 ### Install gRPC
 
 ```
-# git clone -b v1.15.0 https://github.com/grpc/grpc
+$ git clone -b v1.15.0 https://github.com/grpc/grpc
 ```
 
 ### Install Protocal Buffers
@@ -344,16 +357,16 @@ if __name__ == '__main__':
 - 만약 'protoc' 컴파일러가 설치되어있지 않다면 다음과 같이 설치해준다. 'protoc'는 기본적으로 /usr/local/bin에 설치된다.
 
 ```
-# cd grpc/third_party
-# git clone https://github.com/google/protobuf.git
-# cd protobuf
-# git submodule update --init –recursive
-# ./autogen.sh
-# ./configure
-# make
-# make check
-# make install
-# ldconfig
+$ cd grpc/third_party
+$ git clone https://github.com/google/protobuf.git
+$ cd protobuf
+$ git submodule update --init –recursive
+$ ./autogen.sh
+$ ./configure
+$ make
+$ make check
+$ make install
+$ ldconfig
 ```
 
 ### Install Protoc plugin
@@ -361,10 +374,10 @@ if __name__ == '__main__':
 - grpc repository의 root에서 설치한다. 
 
 ```
-# cd ../../
-# git submodule update --init
-# make
-# make install
+$ cd ../../
+$ git submodule update --init
+$ make
+$ make install
 ```
 
 - make 명령어 실행 중 다음과 같은 오류가 발생할 수 있다.
@@ -378,7 +391,191 @@ static bool dynamic_init_dummy_src_2fproto_2fgrpc_2fstatus_2fstatus_2eproto = []
 - Solution:
 
 ```
-static bool dynamic_init_dummy_src_2fproto_2fgrpc_2fstatus_2fstatus_2eproto `__attribute__((unused))` = []() { AddDescriptors_src_2fproto_2fgrpc_2fstatus_2fstatus_2eproto(); return true; }();
+static bool dynamic_init_dummy_src_2fproto_2fgrpc_2fstatus_2fstatus_2eproto __attribute__((unused)) = []() { AddDescriptors_src_2fproto_2fgrpc_2fstatus_2fstatus_2eproto(); return true; }();
 ```
 
+## gRPC 통신
+
+### 1. Generate gRPC service
+
+- make 명령어를 사용하기 위해 Makefile을 만들어준다. PROTOS_PATH는 자신의 proto 파일의 경로를 적어준다.
+
+```
+$ vim ${GOPATH}/src/pb/Makefile
+```
+
+```
+#
+# Copyright 2015 gRPC authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+HOST_SYSTEM = $(shell uname | cut -f 1 -d_)
+SYSTEM ?= $(HOST_SYSTEM)
+CXX = g++
+CPPFLAGS += `pkg-config --cflags protobuf grpc`
+CXXFLAGS += -std=c++11
+ifeq ($(SYSTEM),Darwin)
+LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++`\
+           -lgrpc++_reflection\
+           -ldl
+else
+LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++`\
+           -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed\
+           -ldl
+endif
+PROTOC = protoc
+GRPC_CPP_PLUGIN = grpc_cpp_plugin
+GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
+											
+PROTOS_PATH = ${GOPATH}/src/pb
+												
+vpath %.proto $(PROTOS_PATH)
+												
+all: system-check gateway_client gateway_server
+												
+gateway_client: gateway.pb.o gateway.pb.o gateway.o helper.o
+    $(CXX) $^ $(LDFLAGS) -o $@
+											
+gateway_server: gateway.pb.o gateway.grpc.pb.o gateway_server.o helper.o
+    $(CXX) $^ $(LDFLAGS) -o $@
+														
+%.grpc.pb.cc: %.proto
+    $(PROTOC) -I $(PROTOS_PATH) --grpc_out=. --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<
+															
+%.pb.cc: %.proto
+    $(PROTOC) -I $(PROTOS_PATH) --cpp_out=. $<
+																
+clean:
+    rm -f *.o *.pb.cc *.pb.h gateway_client gateway_server 
+
+# The following is to test your system and ensure a smoother experience.
+# They are by no means necessary to actually compile a grpc-enabled software.
+
+PROTOC_CMD = which $(PROTOC)
+PROTOC_CHECK_CMD = $(PROTOC) --version | grep -q libprotoc.3
+PLUGIN_CHECK_CMD = which $(GRPC_CPP_PLUGIN)
+HAS_PROTOC = $(shell $(PROTOC_CMD) > /dev/null && echo true || echo false)
+ifeq ($(HAS_PROTOC),true)
+HAS_VALID_PROTOC = $(shell $(PROTOC_CHECK_CMD) 2> /dev/null && echo true || echo false)
+endif
+HAS_PLUGIN = $(shell $(PLUGIN_CHECK_CMD) > /dev/null && echo true || echo false)
+
+SYSTEM_OK = false
+ifeq ($(HAS_VALID_PROTOC),true)
+ifeq ($(HAS_PLUGIN),true)
+SYSTEM_OK = true
+endif
+endif
+
+system-check:
+ifneq ($(HAS_VALID_PROTOC),true)
+    @echo " DEPENDENCY ERROR"
+    @echo
+    @echo "You don't have protoc 3.0.0 installed in your path."
+    @echo "Please install Google protocol buffers 3.0.0 and its compiler."
+    @echo "You can find it here:"
+    @echo
+    @echo "   https://github.com/google/protobuf/releases/tag/v3.0.0"
+    @echo
+    @echo "Here is what I get when trying to evaluate your version of protoc:"
+    @echo
+    -$(PROTOC) --version
+    @echo
+    @echo
+endif
+ifneq ($(HAS_PLUGIN),true)
+    @echo " DEPENDENCY ERROR"
+    @echo
+    @echo "You don't have the grpc c++ protobuf plugin installed in your path."
+    @echo "Please install grpc. You can find it here:"
+    @echo
+    @echo "   https://github.com/grpc/grpc"
+    @echo
+    @echo "Here is what I get when trying to detect if you have the plugin:"
+    @echo
+    -which $(GRPC_CPP_PLUGIN)
+    @echo
+    @echo
+endif
+ifneq ($(SYSTEM_OK),true)
+    @false
+endif
+```
+
+### 2. Create gRPC client
+
+> ### For Beginning
+
+- 서비스 메소드를 호출하기 위한 Stub을 만든다
+
+- 서비스 메소드를 호출한다.
+
+```cpp
+#include <iostream>
+#include <memory>
+#include <string>
+
+#include <grpc/grpc.h>
+
+#include "gateway.grpc.pb.h"
+
+using grpc::Channel;
+using grpc::ClientAsyncResponseReader;
+using grpc::ClientContext;
+using grpc::CompletionQueue;
+using grpc::Status;
+using pb::Message;
+using pb::InvokeServiceRequest;
+using pb::Gateway;
+
+class GatewayClient {
+ public:
+  GatewayClient(std::shared_ptr<Channel> channel)
+      : stub_(Gateway::NewStub(channel)) {}
+
+  std::string Invoke(const std::string& service) {
+    ClientContext context;
+    Status status;
+    CompletionQueue cq;
+
+    InvokeServiceRequest request;
+    request.set_Service(service);
+    request.set_Input();
+    Message msg;
+
+    std::unique_ptr<ClientAsyncResponseReader<Message> > rpc(
+        stub_->PrepareAsyncInvokeRaw(&context, request, &cq));
+
+    if (status.ok()) {
+      return msg.message();   
+    } 
+  
+
+ private:
+  std::unique_ptr<Gateway::Stub> stub_;
+};
+
+int main(int argc, char** argv) {
+  GatewayClient gateway(
+      grpc::CreateChannel("localhost:32222",
+                         grpc::InsecureChannelCredentials()));
+  std::string service("echo-service");
+  std::
+  std::string Msg = gateway.Invoke(service, );
+  std::cout << Msg << std:endl;
+  return 0;
+}
+```
 
