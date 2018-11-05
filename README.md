@@ -117,7 +117,9 @@ openfx-fn          Active    1d
 > Note
 >
 > minikube를 통해서 cluster를 구성하는 경우 호스트 컴퓨터에 Docker Registry를 만들고 그 안에 image를 push할 필요가 없다. 단순히 Docker Image에 
-> 'latest' 이외의 태그, 즉 image의 버전을 지정하여 build 하고 지정한 태그를 이용해 image를 가져온다. image의 버전을 지정하지 않으면 컨테이너 실 > 행 시, 자동으로 `:latest` 라는 태그가 지정되고, `imagePullPolicy: Always`에 의해 `ErrImagePull` 에러가 발생한다. 
+> 'latest' 이외의 태그, 즉 image의 버전을 지정하여 build 하고 지정한 태그를 이용해 image를 가져온다. 
+> image의 버전을 지정하지 않으면 컨테이너 실행 시, 자동으로 `:latest` 라는 태그가 지정되고, `imagePullPolicy: Always`에 의해 
+> `ErrImagePull` 에러가 발생한다. 
 
 - namespace에서 실행할 컨테이너를 위한 image를 Dockerfile을 통해 각각 build하여야 한다. Dockerfile이란 image의 설정 정보를 갖고 있는 파일이고,  Dockerfile은 gateway, watcher의 서버 코드가 있는 경로에 있어야 한다.  
 
